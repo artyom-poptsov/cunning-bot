@@ -1,0 +1,17 @@
+# -*- shell-script -*-
+
+# Backup files
+*\~
+
+# Auto-generated and auxiliary files
+Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache/
+config.guess
+config.log
+config.status
+config.sub
+configure
+install-sh
+missing
