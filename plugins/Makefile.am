@@ -29,7 +29,7 @@ SOURCES = \
 	shoot.scm
 
 pluginsdir = $(guilesitedir)/cunning-bot/plugins
-nobase_nodist_plugins_DATA = $(SOURCES)
+nobase_dist_plugins_DATA = $(SOURCES)
 
 ETAGS_ARGS = $(SOURCES)
 
