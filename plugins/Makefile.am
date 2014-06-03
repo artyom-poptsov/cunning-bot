@@ -18,17 +18,19 @@
 ## You should have received a copy of the GNU General Public License
 ## along with Cunning-Bot.  If not, see <http://www.gnu.org/licenses/>.
 
-SCM_BOT_SOURCES = \
-	bot.scm			\
-	commands.scm		\
-	plugins.scm		\
-	run-cbot.scm
+SCM_PLUGIN_SOURCES = \
+	admin.scm	\
+	basically.scm	\
+	ddg.scm		\
+	firearms.sexp	\
+	help.scm	\
+	lets.scm	\
+	misc.scm	\
+	shoot.scm
 
-pkgguilesitedir = $(guilesitedir)/cunning-bot
-nobase_dist_pkgguilesite_DATA = $(SCM_BOT_SOURCES)
+pluginsdir = $(guilesitedir)/cunning-bot/plugins
+nobase_nodist_plugins_DATA = $(SCM_PLUGIN_SOURCES)
 
-ETAGS_ARGS = $(SCM_BOT_SOURCES)
-
-SUBDIRS = plugins
+ETAGS_ARGS = $(SCM_PLUGIN_SOURCES)
 
 ## Makefile.am ends here
