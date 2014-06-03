@@ -2,7 +2,7 @@ dnl   configuration script for Cunning-Bot
 dnl   Process this file with autoconf to produce configure.
 dnl
 
-AC_INIT([cunning-bot], [0.0], [],
+AC_INIT([cunning-bot], [0.0], [aidalgol@amuri.net],
                        [cunning-bot],
                        [https://github.com/aidalgol/cunning-bot])
 
