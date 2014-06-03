@@ -29,6 +29,8 @@ nobase_dist_pkgguilesite_DATA = $(SCM_BOT_SOURCES)
 
 ETAGS_ARGS = $(SCM_BOT_SOURCES)
 
+EXTRA_DIST = TODO.org docs/plugins.org
+
 SUBDIRS = plugins
 
 ## Makefile.am ends here
