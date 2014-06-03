@@ -18,7 +18,7 @@
 ## You should have received a copy of the GNU General Public License
 ## along with Cunning-Bot.  If not, see <http://www.gnu.org/licenses/>.
 
-SCM_PLUGIN_SOURCES = \
+SOURCES = \
 	admin.scm	\
 	basically.scm	\
 	ddg.scm		\
@@ -29,8 +29,8 @@ SCM_PLUGIN_SOURCES = \
 	shoot.scm
 
 pluginsdir = $(guilesitedir)/cunning-bot/plugins
-nobase_nodist_plugins_DATA = $(SCM_PLUGIN_SOURCES)
+nobase_nodist_plugins_DATA = $(SOURCES)
 
-ETAGS_ARGS = $(SCM_PLUGIN_SOURCES)
+ETAGS_ARGS = $(SOURCES)
 
 ## Makefile.am ends here

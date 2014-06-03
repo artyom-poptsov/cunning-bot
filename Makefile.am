@@ -18,16 +18,16 @@
 ## You should have received a copy of the GNU General Public License
 ## along with Cunning-Bot.  If not, see <http://www.gnu.org/licenses/>.
 
-SCM_BOT_SOURCES = \
+SOURCES = \
 	bot.scm			\
 	commands.scm		\
 	plugins.scm		\
 	run-cbot.scm
 
 pkgguilesitedir = $(guilesitedir)/cunning-bot
-nobase_dist_pkgguilesite_DATA = $(SCM_BOT_SOURCES)
+nobase_dist_pkgguilesite_DATA = $(SOURCES)
 
-ETAGS_ARGS = $(SCM_BOT_SOURCES)
+ETAGS_ARGS = $(SOURCES)
 
 EXTRA_DIST = TODO.org docs/plugins.org
 
