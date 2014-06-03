@@ -19,7 +19,6 @@ AC_ARG_WITH([guilesitedir],
              esac],
              [guilesitedir=""])
 
-GUILE_FLAGS
 GUILE_PROGS
 GUILE_SITE_DIR
 
