@@ -19,11 +19,19 @@
 ## along with Cunning-Bot.  If not, see <http://www.gnu.org/licenses/>.
 
 SOURCES = \
-	bot.scm			\
-	commands.scm		\
-	plugins.scm		\
-	run-cbot.scm		\
+	bot.scm				\
+	commands.scm			\
+	plugins.scm			\
+	run-cbot.scm			\
 	log.scm
+
+# XXX: Ship part of spells collection of Scheme libraries to simplify
+# the installation.
+# See <http://community.schemewiki.org/?spells>
+SOURCES += \
+	spells/network.scm		\
+	spells/network/compat.scm	\
+	spells/network/utils.scm
 
 pkgguilesitedir = $(guilesitedir)/cunning-bot
 nobase_dist_pkgguilesite_DATA = $(SOURCES)

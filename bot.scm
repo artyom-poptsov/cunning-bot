@@ -19,7 +19,7 @@
   #:use-module (ice-9 rdelim)
   #:use-module (ice-9 regex)
   #:use-module (ice-9 format)
-  #:use-module (spells network)
+  #:use-module (cunning-bot spells network) ;We use own copy of spells
   #:use-module (srfi srfi-9)
   #:use-module (cunning-bot log)
   #:export (make-bot
