@@ -23,13 +23,16 @@
              (cunning-bot commands))
 
 (define socket-file-name "cbot-repl-socket")
-(define bot (make-bot "Cunning_Bot" "irc.example.net" 6667))
+(define bot (make-bot "cadrobot" "irc.freenode.net" 6667))
 (for-each (lambda (command)
             (let ((name (car command))
                   (proc (cdr command)))
              (register-command! bot name proc)))
           `((flay . ,flay)
             (say-hello . ,say-hello)))
+
+(set-log-dir! bot (format #f "~a/.local/share/cadrobot/logs"
+                          (getenv "HOME")))
 
 (use-plugin! bot 'shoot)
 (spawn-server (make-unix-domain-server-socket #:path socket-file-name))
@@ -42,4 +45,4 @@
 ;;     (quit-irc bot))
 
 (add-quit-hook! bot (lambda (bot) (delete-file socket-file-name)))
-(start-bot bot '("#cunning-bot"))
+(start-bot bot '("##cadr"))
