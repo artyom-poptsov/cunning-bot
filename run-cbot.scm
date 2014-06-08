@@ -31,8 +31,9 @@
           `((flay . ,flay)
             (say-hello . ,say-hello)))
 
-(set-log-dir! bot (format #f "~a/.local/share/cadrobot/logs"
-                          (getenv "HOME")))
+(let ((log-dir (format #f "~a/.local/share/cadrobot/logs" (getenv "HOME"))))
+  (set-log-dir! bot log-dir)
+  (format #t "IRC logs directory: ~a~%" log-dir))
 
 (use-plugin! bot 'shoot)
 (spawn-server (make-unix-domain-server-socket #:path socket-file-name))
