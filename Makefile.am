@@ -22,7 +22,8 @@ SOURCES = \
 	bot.scm			\
 	commands.scm		\
 	plugins.scm		\
-	run-cbot.scm
+	run-cbot.scm		\
+	log.scm
 
 pkgguilesitedir = $(guilesitedir)/cunning-bot
 nobase_dist_pkgguilesite_DATA = $(SOURCES)

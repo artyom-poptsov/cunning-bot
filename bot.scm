@@ -21,6 +21,7 @@
   #:use-module (ice-9 format)
   #:use-module (spells network)
   #:use-module (srfi srfi-9)
+  #:use-module (cunning-bot log)
   #:export (make-bot
             get-nick
             send-privmsg
@@ -35,6 +36,8 @@
             bot-plugins
             bot-plugins-set!
             get-commands
+            set-log-dir!
+            get-log-dir
             start-bot))
 
 (define line-end "\r\n")
@@ -54,7 +57,9 @@
   (commands get-commands)
   (privmsg-hook bot-privmsg-hook)
   (quit-hook bot-quit-hook)
-  (plugins bot-plugins bot-plugins-set!))
+  (plugins bot-plugins bot-plugins-set!)
+  ;; Logging
+  (log-dir get-log-dir set-log-dir!))
 
 (define (valid-nick/username/realname? string)
   "Returns whether STRING is a valid nick, username, or realname."
@@ -298,4 +303,5 @@ catching and reporting any errors."
   (do ((line (read-line-irc bot) (read-line-irc bot)))
       ((eof-object? line)
        (run-hook (bot-quit-hook bot) bot))
+    (log-line (get-log-dir bot) line)
     (process-line bot line)))
