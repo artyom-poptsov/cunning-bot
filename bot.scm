@@ -294,11 +294,6 @@ catching and reporting any errors."
   (display "done.") (newline)
   ;; We are now connected to the IRC server.
 
-  ;; We use UTF-8 to deal with native language
-  (setlocale LC_ALL "")
-  (set-port-encoding! (get-bot-in-port bot)  "utf-8")
-  (set-port-encoding! (get-bot-out-port bot) "utf-8")
-
   ;; Join channels.
   (display "Joining channels...")
   (join-channels bot channels)
