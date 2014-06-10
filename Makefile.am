@@ -18,6 +18,9 @@
 ## You should have received a copy of the GNU General Public License
 ## along with Cunning-Bot.  If not, see <http://www.gnu.org/licenses/>.
 
+bin_SCRIPTS = \
+	tappet
+
 SOURCES = \
 	bot.scm				\
 	commands.scm			\
@@ -36,9 +39,23 @@ SOURCES += \
 pkgguilesitedir = $(guilesitedir)/cunning-bot
 nobase_dist_pkgguilesite_DATA = $(SOURCES)
 
+substitute = sed -e 's,[@]GUILE[@],$(GUILE),g'
+
+EXTRA_DIST = \
+	tappet.in
+
+SUFFIXES = .in
+
+.in:
+	$(substitute) "$^" > "$@.tmp" && 	\
+	chmod +x "$@.tmp" &&			\
+	mv "$@.tmp" "$@"
+
 ETAGS_ARGS = $(SOURCES)
 
 EXTRA_DIST = TODO.org docs/plugins.org
+
+CLEANFILES = $(bin_SCRIPTS)
 
 SUBDIRS = plugins
 

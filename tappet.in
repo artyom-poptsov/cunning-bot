@@ -1,0 +1,168 @@
+#!@GUILE@ \
+--debug -e main
+# aside from this initial boilerplate, this is actually -*- scheme -*- code
+!#
+
+;;; tappet.scm -- A reliable IRC log pusher
+
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; Use this tappet to push IRC logs into the web.
+
+
+;;; Code:
+
+(use-modules (ice-9 getopt-long)
+             (ice-9 ftw)
+             (ice-9 match)
+             (sxml  simple))
+
+(define *debug?* #t)
+
+(define (debug fmt . message)
+  (and *debug?*
+       (format #t fmt message)))
+
+;; Taken from GNU Guile manual
+(define remove-stat
+  ;; Remove the `stat' object the `file-system-tree' provides
+  ;; for each file in the tree.
+  (match-lambda
+   ((name stat)              ; flat file
+    name)
+   ((name stat children ...) ; directory
+    (list name (map remove-stat children)))))
+
+(define (get-channels root-directory)
+  (cadr (remove-stat (file-system-tree root-directory))))
+
+(define (mkdir/try dirname)
+  "Make a directory DIRNAME only if it does not exist."
+  (or (file-exists? dirname)
+      (mkdir dirname)))
+
+(define (name n)
+  (if (pair? n) (car n) n))
+
+
+;;;
+
+(define (write-index! dirs port)
+  "Write index file based on DIRS to the PORT"
+  (debug "        write-index!: dirs: ~a~%" dirs)
+  (let* ((dir->link (lambda (node) `(li (a (@ (href ,node)) ,node))))
+         (dirs      (if (pair? dirs) dirs (list dirs)))
+         (links     (map (lambda (dir) (dir->link (name dir))) dirs)))
+    (sxml->xml `(html (ul ,links)) port)))
+
+(define (write-index/files! dir port)
+  "Write index file that contains list of files in the directory DIR
+to PORT."
+  (debug "        write-index/files!: dir: ~a~%" dir)
+  (and (pair? dir)
+       (write-index! (cdr dir) port)))
+
+
+;;; Exporters
+
+(define (export-log! log-file source destination)
+  (debug "        export-log!: log-file: ~a~%" log-file)
+  ;; TODO: Convert the log to HTML
+  (copy-file (string-append source      "/" log-file)
+             (string-append destination "/" log-file)))
+
+(define (export-month! month-subtree source destination)
+  "Export MONTH-SUBTREE to MONTH-DIR."
+  (debug "      export-month!: month-subtree: ~a~%" month-subtree)
+  (debug "      export-month!: source:        ~a~%" source)
+  (debug "      export-month!: destination:   ~a~%" destination)
+  (mkdir/try destination)
+  (let ((month-index (open-output-file
+                      (string-append destination "/index.html"))))
+    (write-index/files! month-subtree month-index))
+  (map (lambda (f) (export-log! f source destination))
+       (cadr month-subtree)))
+
+(define (export-year! year-subtree source destination)
+  "Export YEAR-SUBTREE to DESTINATION directory."
+  (debug "    export-year!: year-subtree: ~a~%" year-subtree)
+  (debug "    export-year!: source:       ~a~%" source)
+  (debug "    export-year!: destination:  ~a~%" destination)
+  (mkdir/try destination)
+  (let ((month-index (open-output-file
+                      (string-append destination "/index.html"))))
+    (write-index! (cadr year-subtree) month-index))
+  (map (lambda (month)
+         (let ((source      (string-append source      "/" (name month)))
+               (destination (string-append destination "/" (name month))))
+           (export-month! month source destination)))
+       (cadr year-subtree)))
+  
+(define (export-channel! channel-subtree source destination)
+  "Export CHANNEL-SUBTREE to DESTINATION directory."
+  (debug "  export-channel!: channel-subtree: ~a~%" channel-subtree)
+  (debug "  export-channel!: source:          ~a~%" source)
+  (debug "  export-channel!: destination:     ~a~%" destination)
+  (mkdir/try destination)
+  (let ((year-index (open-output-file
+                     (string-append destination "/index.html"))))
+    (write-index! (cadr channel-subtree) year-index))
+  (map (lambda (year)
+         (let ((source      (string-append source      "/" (name year)))
+               (destination (string-append destination "/" (name year))))
+           (export-year! year source destination)))
+       (cadr channel-subtree)))
+
+;;;
+
+(define (print-help-and-exit)
+  "Print the help message and exit."
+  (exit 0))
+
+(define %option-spec
+  '((help             (single-char #\h) (value #f))
+    (root-directory   (single-char #\r) (value #t))
+    (output-directory (single-char #\o) (value #t))))
+
+(define (main args)
+  "Entry point of the program."
+  (let* ((options        (getopt-long args %option-spec))
+         (help-wanted?     (option-ref options 'help  #f))
+         (root-directory   (option-ref options 'root-directory #f))
+         (output-directory (option-ref options 'output-directory #f)))
+
+    (and help-wanted?
+         (print-help-and-exit))
+
+    (or root-directory
+        (error "You need to specify the root directory"))
+
+    (or output-directory
+        (error "You need to specify the output directory"))
+
+    (let* ((channels      (get-channels root-directory))
+           (channel-index (open-output-file
+                           (string-append output-directory "/index.html"))))
+
+      (write-index! channels channel-index)
+
+      (map (lambda (ch)
+             (let ((source      (string-append root-directory   "/" (name ch)))
+                   (destination (string-append output-directory "/" (name ch))))
+               (export-channel! ch source destination)))
+           channels))))
+
+;;; tappet.scm ends here
