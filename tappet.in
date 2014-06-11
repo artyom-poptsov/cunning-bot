@@ -30,7 +30,8 @@
 (use-modules (ice-9 getopt-long)
              (ice-9 ftw)
              (ice-9 match)
-             (sxml  simple))
+             (sxml  simple)
+             (cunning-bot dsv))
 
 (define *debug?* #t)
 
@@ -82,9 +83,24 @@ to PORT."
 
 (define (export-log! log-file source destination)
   (debug "        export-log!: log-file: ~a~%" log-file)
-  ;; TODO: Convert the log to HTML
-  (copy-file (string-append source      "/" log-file)
-             (string-append destination "/" log-file)))
+  (let* ((p   (open-input-file (string-append source "/" log-file)))
+         (log (dsv-read p)))
+
+    ;; XXX
+    (let* ((rec->tr (lambda (rec) `(tr (td ,(list-ref rec 0)) ;timestamp
+                                       (td ,(list-ref rec 1)) ;sender
+                                       (td ,(list-ref rec 2)) ;command
+                                       (td ,(string-join (cdddr rec)))))) ;message
+           (log     `(table ,(map rec->tr log)))
+           (head    `(head (meta (@ (http-equiv "Content-Language")
+                                    (content    "ru")))
+                           (meta (@ (http-equiv "Content-Type")
+                                    (content    "text/html; charset=utf-8")))))
+           (dest    (string-append destination "/"
+                                   (car (string-split log-file #\.)) ".html"))
+           (out     (open-output-file dest)))
+
+      (sxml->xml `(html ,head (body ,log)) out))))
 
 (define (export-month! month-subtree source destination)
   "Export MONTH-SUBTREE to MONTH-DIR."
@@ -94,9 +110,14 @@ to PORT."
   (mkdir/try destination)
   (let ((month-index (open-output-file
                       (string-append destination "/index.html"))))
-    (write-index/files! month-subtree month-index))
-  (map (lambda (f) (export-log! f source destination))
-       (cadr month-subtree)))
+    (let ((month-subtree (list (car month-subtree)
+                               (map (lambda (log)
+                                      (string-append (car (string-split log #\.))
+                                                     ".html"))
+                                    (cadr month-subtree)))))
+      (write-index/files! month-subtree month-index))
+    (map (lambda (f) (export-log! f source destination))
+         (cadr month-subtree))))
 
 (define (export-year! year-subtree source destination)
   "Export YEAR-SUBTREE to DESTINATION directory."
