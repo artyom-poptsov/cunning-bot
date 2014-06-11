@@ -61,6 +61,16 @@
   (if (pair? n) (car n) n))
 
 
+;;; HTML helpers
+
+(define (make-html-head title)
+  `(head (meta (@ (http-equiv "Content-Language")
+                  (content    "ru")))
+         (meta (@ (http-equiv "Content-Type")
+                  (content    "text/html; charset=utf-8")))
+         (title ,title)))
+
+
 ;;;
 
 (define (write-index! dirs port)
@@ -68,8 +78,9 @@
   (debug "        write-index!: dirs: ~a~%" dirs)
   (let* ((dir->link (lambda (node) `(li (a (@ (href ,node)) ,node))))
          (dirs      (if (pair? dirs) dirs (list dirs)))
-         (links     (map (lambda (dir) (dir->link (name dir))) dirs)))
-    (sxml->xml `(html (ul ,links)) port)))
+         (links     (map (lambda (dir) (dir->link (name dir))) dirs))
+         (head      (make-html-head "index"))) ;FIXME: Fix the title
+    (sxml->xml `(html ,head (body (ul ,links))) port)))
 
 (define (write-index/files! dir port)
   "Write index file that contains list of files in the directory DIR
@@ -92,10 +103,7 @@ to PORT."
                                        (td ,(list-ref rec 2)) ;command
                                        (td ,(string-join (cdddr rec)))))) ;message
            (log     `(table ,(map rec->tr log)))
-           (head    `(head (meta (@ (http-equiv "Content-Language")
-                                    (content    "ru")))
-                           (meta (@ (http-equiv "Content-Type")
-                                    (content    "text/html; charset=utf-8")))))
+           (head    (make-html-head log-file))
            (dest    (string-append destination "/"
                                    (car (string-split log-file #\.)) ".html"))
            (out     (open-output-file dest)))
