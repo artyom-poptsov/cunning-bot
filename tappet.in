@@ -92,16 +92,24 @@ to PORT."
 
 ;;; Exporters
 
+(define (timestamp->link timestamp)
+  (let ((hms (strftime "%T" (localtime timestamp))))
+    `(a (@ (name ,timestamp)
+           (href ,(string-append "#" (number->string timestamp))))
+        ,hms)))
+
 (define (export-log! log-file source destination)
   (debug "        export-log!: log-file: ~a~%" log-file)
   (let* ((p   (open-input-file (string-append source "/" log-file)))
          (log (dsv-read p)))
 
     ;; XXX
-    (let* ((rec->tr (lambda (rec) `(tr (td ,(list-ref rec 0)) ;timestamp
-                                       (td ,(list-ref rec 1)) ;sender
-                                       (td ,(list-ref rec 2)) ;command
-                                       (td ,(string-join (cdddr rec)))))) ;message
+    (let* ((rec->tr (lambda (rec)
+                      `(tr (td ,(timestamp->link
+                                 (string->number (list-ref rec 0)))) ;timestamp
+                           (td ,(list-ref rec 1)) ;sender
+                           (td ,(list-ref rec 2)) ;command
+                           (td ,(string-join (cdddr rec)))))) ;message
            (log     `(table ,(map rec->tr log)))
            (head    (make-html-head log-file))
            (dest    (string-append destination "/"
