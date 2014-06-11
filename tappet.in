@@ -30,6 +30,7 @@
 (use-modules (ice-9 getopt-long)
              (ice-9 ftw)
              (ice-9 match)
+             (web   uri)
              (sxml  simple)
              (cunning-bot dsv))
 
@@ -76,7 +77,8 @@
 (define (write-index! dirs port)
   "Write index file based on DIRS to the PORT"
   (debug "        write-index!: dirs: ~a~%" dirs)
-  (let* ((dir->link (lambda (node) `(li (a (@ (href ,node)) ,node))))
+  (let* ((dir->link (lambda (node) `(li (a (@ (href ,(uri-encode node)))
+                                           ,node))))
          (dirs      (if (pair? dirs) dirs (list dirs)))
          (links     (map (lambda (dir) (dir->link (name dir))) dirs))
          (head      (make-html-head "index"))) ;FIXME: Fix the title
