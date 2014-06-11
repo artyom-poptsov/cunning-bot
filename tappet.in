@@ -76,7 +76,7 @@
 to PORT."
   (debug "        write-index/files!: dir: ~a~%" dir)
   (and (pair? dir)
-       (write-index! (cdr dir) port)))
+       (write-index! (cadr dir) port)))
 
 
 ;;; Exporters
