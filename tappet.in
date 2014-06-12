@@ -80,7 +80,7 @@
 (define (make-html-footer)
   `(center
     (p "Collected by " (a (@ (href ,%cadrobot)) "cadrobot")
-       ", converted to HTML with " (a (@ (href ,%tappet)) "tappet"))))
+       ", converted to HTML using " (a (@ (href ,%tappet)) "tappet"))))
 
 (define (write-index! dirs port)
   "Write index file based on DIRS to the PORT"
