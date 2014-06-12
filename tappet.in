@@ -104,9 +104,11 @@ to PORT."
 ;;; Exporters
 
 (define (timestamp->link timestamp)
+  (define %iso8601 "%Y-%m-%dT%H:%M:%S%z")
   (let ((hms (strftime "%T" (localtime timestamp))))
-    `(a (@ (name ,timestamp)
-           (href ,(string-append "#" (number->string timestamp))))
+    `(a (@ (name  ,timestamp)
+           (title ,(strftime %iso8601 (localtime timestamp)))
+           (href  ,(string-append "#" (number->string timestamp))))
         ,hms)))
 
 (define (export-log! log-file source destination)
