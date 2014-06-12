@@ -60,7 +60,7 @@
   #:use-module (ice-9 regex)
 
   ;; escape-special-chars
-  #:use-module (string transform)
+  #:use-module (texinfo string-utils)
 
   #:export (dsv-string->list
             list->dsv-string
