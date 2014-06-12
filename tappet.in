@@ -74,6 +74,14 @@
 
 ;;;
 
+(define %cadrobot "https://github.com/artyom-poptsov/cunning-bot/tree/cadrobot")
+(define %tappet   "https://github.com/artyom-poptsov/cunning-bot/blob/cadrobot/tappet.in")
+
+(define (make-html-footer)
+  `(center
+    (p "Collected by " (a (@ (href ,%cadrobot)) "cadrobot")
+       ", converted to HTML with " (a (@ (href ,%tappet)) "tappet"))))
+
 (define (write-index! dirs port)
   "Write index file based on DIRS to the PORT"
   (debug "        write-index!: dirs: ~a~%" dirs)
@@ -81,8 +89,9 @@
                                            ,node))))
          (dirs      (if (pair? dirs) dirs (list dirs)))
          (links     (map (lambda (dir) (dir->link (name dir))) dirs))
-         (head      (make-html-head "index"))) ;FIXME: Fix the title
-    (sxml->xml `(html ,head (body (ul ,links))) port)))
+         (head      (make-html-head "index")) ;FIXME: Fix the title
+         (footer    (make-html-footer)))
+    (sxml->xml `(html ,head (body (ul ,links) (hr) ,footer)) port)))
 
 (define (write-index/files! dir port)
   "Write index file that contains list of files in the directory DIR
@@ -114,11 +123,12 @@ to PORT."
                            (td ,(string-join (cdddr rec)))))) ;message
            (log     `(table ,(map rec->tr log)))
            (head    (make-html-head log-file))
+           (footer  (make-html-footer))
            (dest    (string-append destination "/"
                                    (car (string-split log-file #\.)) ".html"))
            (out     (open-output-file dest)))
 
-      (sxml->xml `(html ,head (body ,log)) out))))
+      (sxml->xml `(html ,head (body ,log (hr) ,footer)) out))))
 
 (define (export-month! month-subtree source destination)
   "Export MONTH-SUBTREE to MONTH-DIR."
