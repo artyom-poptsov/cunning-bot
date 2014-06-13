@@ -81,6 +81,11 @@
     (p "Collected by " (a (@ (href ,%cadrobot-url)) "cadrobot")
        ", converted to HTML using " (a (@ (href ,%tappet-url)) "tappet"))))
 
+(define (write-html-page! title body port)
+  "Write HTML page with the given TITLE and BODY to the PORT."
+  (sxml->xml `(html ,(make-html-head title)
+                    (body ,@body (hr) ,(make-html-footer))) port))
+
 
 ;;;
 
@@ -90,10 +95,8 @@
   (let* ((dir->link (lambda (node) `(li (a (@ (href ,(uri-encode node)))
                                            ,node))))
          (dirs      (if (pair? dirs) dirs (list dirs)))
-         (links     (map (lambda (dir) (dir->link (name dir))) dirs))
-         (head      (make-html-head "index")) ;FIXME: Fix the title
-         (footer    (make-html-footer)))
-    (sxml->xml `(html ,head (body (ul ,links) (hr) ,footer)) port)))
+         (links     (map (lambda (dir) (dir->link (name dir))) dirs)))
+    (write-html-page! "index" `((ul ,links)) port)))
 
 (define (write-index/files! dir port)
   "Write index file that contains list of files in the directory DIR
@@ -126,13 +129,11 @@ to PORT."
                            (td ,(list-ref rec 2)) ;command
                            (td ,(string-join (cdddr rec)))))) ;message
            (log     `(table ,(map rec->tr log)))
-           (head    (make-html-head log-file))
-           (footer  (make-html-footer))
            (dest    (string-append destination "/"
                                    (car (string-split log-file #\.)) ".html"))
            (out     (open-output-file dest)))
 
-      (sxml->xml `(html ,head (body ,log (hr) ,footer)) out))))
+      (write-html-page! log-file (list log) out))))
 
 (define (export-month! month-subtree source destination)
   "Export MONTH-SUBTREE to MONTH-DIR."
