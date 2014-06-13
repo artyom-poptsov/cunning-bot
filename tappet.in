@@ -30,6 +30,7 @@
 (use-modules (ice-9 getopt-long)
              (ice-9 ftw)
              (ice-9 match)
+             (ice-9 regex)
              (web   uri)
              (sxml  simple)
              (cunning-bot dsv))
@@ -89,22 +90,14 @@
 
 ;;;
 
-(define (write-index! dirs directory)
-  "Write index file based on DIRS to the DIRECTORY."
-  (debug "        write-index!: dirs: ~a~%" dirs)
-  (let* ((dir->link (lambda (node) `(li (a (@ (href ,(uri-encode node)))
-                                           ,node))))
-         (dirs      (if (pair? dirs) dirs (list dirs)))
-         (links     (map (lambda (dir) (dir->link (name dir))) dirs))
-         (p         (open-output-file (string-append directory "/index.html"))))
+(define (write-index! elem-list directory)
+  "Write index file based on ELEM-LIST which is a list of pairs in the
+format `(link-name destination)' to the DIRECTORY."
+  (debug "        write-index!: elem-list: ~a~%" elem-list)
+  (let* ((links (map (lambda (e) `(li (a (@ (href ,(cadr e))) ,(car e))))
+                     elem-list))
+         (p     (open-output-file (string-append directory "/index.html"))))
     (write-html-page! "index" `((ul ,links)) p)))
-
-(define (write-index/files! dir destination)
-  "Write index file that contains list of files in the directory DIR
-to PORT."
-  (debug "        write-index/files!: dir: ~a~%" dir)
-  (and (pair? dir)
-       (write-index! (cadr dir) destination)))
 
 
 ;;; Exporters
@@ -130,11 +123,12 @@ to PORT."
                            (td ,(list-ref rec 2)) ;command
                            (td ,(string-join (cdddr rec)))))) ;message
            (log     `(table ,(map rec->tr log)))
-           (dest    (string-append destination "/"
-                                   (car (string-split log-file #\.)) ".html"))
+           (html-file (string-append (car (string-split log-file #\.)) ".html"))
+           (dest    (string-append destination "/" html-file))
            (out     (open-output-file dest)))
 
-      (write-html-page! log-file (list log) out))))
+      (write-html-page! log-file (list log) out)
+      (list log-file html-file))))
 
 (define (export-month! month-subtree source destination)
   "Export MONTH-SUBTREE to MONTH-DIR."
@@ -142,12 +136,6 @@ to PORT."
   (debug "      export-month!: source:        ~a~%" source)
   (debug "      export-month!: destination:   ~a~%" destination)
   (mkdir/try destination)
-  (let ((month-subtree (list (car month-subtree)
-                             (map (lambda (log)
-                                    (string-append (car (string-split log #\.))
-                                                   ".html"))
-                                  (cadr month-subtree)))))
-    (write-index/files! month-subtree destination))
   (map (lambda (f) (export-log! f source destination))
        (cadr month-subtree)))
 
@@ -157,25 +145,48 @@ to PORT."
   (debug "    export-year!: source:       ~a~%" source)
   (debug "    export-year!: destination:  ~a~%" destination)
   (mkdir/try destination)
-  (write-index! (cadr year-subtree) destination)
   (map (lambda (month)
-         (let ((source      (string-append source      "/" (name month)))
-               (destination (string-append destination "/" (name month))))
-           (export-month! month source destination)))
+         (let* ((source      (string-append source      "/" (name month)))
+                (destination (string-append destination "/" (name month)))
+                (elem-list   (export-month! month source destination)))
+           (write-index! elem-list destination)
+           (list (name month) (name month))))
        (cadr year-subtree)))
-  
+
 (define (export-channel! channel-subtree source destination)
   "Export CHANNEL-SUBTREE to DESTINATION directory."
   (debug "  export-channel!: channel-subtree: ~a~%" channel-subtree)
   (debug "  export-channel!: source:          ~a~%" source)
   (debug "  export-channel!: destination:     ~a~%" destination)
   (mkdir/try destination)
-  (write-index! (cadr channel-subtree) destination)
   (map (lambda (year)
-         (let ((source      (string-append source      "/" (name year)))
-               (destination (string-append destination "/" (name year))))
-           (export-year! year source destination)))
+         (let* ((source      (string-append source      "/" (name year)))
+                (destination (string-append destination "/" (name year)))
+                (elem-list   (export-year! year source destination)))
+           (write-index! elem-list destination)
+           (list (name year) (name year))))
        (cadr channel-subtree)))
+
+(define (export-channels! channels source destination)
+
+  (define (remove-#s channel-name)
+    (regexp-substitute/global #f "#*" channel-name 'pre "" 'post))
+
+  (debug "  export-channels!: channels:    ~a~%" channels)
+  (debug "  export-channels!: source:      ~a~%" source)
+  (debug "  export-channels!: destination: ~a~%" destination)
+
+  (mkdir/try destination)
+
+  (map (lambda (channel)
+         (let* ((orig-name   (name channel))
+                (dest-name   (remove-#s orig-name))
+                (source      (string-append source      "/" orig-name))
+                (destination (string-append destination "/" dest-name))
+                (elem-list   (export-channel! channel source destination)))
+           (write-index! elem-list destination)
+           (list orig-name dest-name)))
+       channels))
 
 ;;;
 
@@ -190,6 +201,7 @@ to PORT."
 
 (define (main args)
   "Entry point of the program."
+
   (let* ((options        (getopt-long args %option-spec))
          (help-wanted?     (option-ref options 'help  #f))
          (root-directory   (option-ref options 'root-directory #f))
@@ -204,14 +216,9 @@ to PORT."
     (or output-directory
         (error "You need to specify the output directory"))
 
-    (let ((channels (get-channels root-directory)))
-
-      (write-index! channels output-directory)
-
-      (map (lambda (ch)
-             (let ((source      (string-append root-directory   "/" (name ch)))
-                   (destination (string-append output-directory "/" (name ch))))
-               (export-channel! ch source destination)))
-           channels))))
+    (let* ((channels  (get-channels root-directory))
+           (elem-list (export-channels! channels
+                                        root-directory output-directory)))
+      (write-index! elem-list output-directory))))
 
 ;;; tappet.scm ends here
