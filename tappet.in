@@ -34,6 +34,9 @@
              (sxml  simple)
              (cunning-bot dsv))
 
+(define %cadrobot-url "https://github.com/artyom-poptsov/cunning-bot/tree/cadrobot")
+(define %tappet-url   "https://github.com/artyom-poptsov/cunning-bot/blob/cadrobot/tappet.in")
+
 (define *debug?* #t)
 
 (define (debug fmt . message)
@@ -65,22 +68,21 @@
 ;;; HTML helpers
 
 (define (make-html-head title)
+  "Make HTML <head> with the given TITLE."
   `(head (meta (@ (http-equiv "Content-Language")
                   (content    "ru")))
          (meta (@ (http-equiv "Content-Type")
                   (content    "text/html; charset=utf-8")))
          (title ,title)))
 
+(define (make-html-footer)
+  "Make a page footer."
+  `(center
+    (p "Collected by " (a (@ (href ,%cadrobot-url)) "cadrobot")
+       ", converted to HTML using " (a (@ (href ,%tappet-url)) "tappet"))))
+
 
 ;;;
-
-(define %cadrobot "https://github.com/artyom-poptsov/cunning-bot/tree/cadrobot")
-(define %tappet   "https://github.com/artyom-poptsov/cunning-bot/blob/cadrobot/tappet.in")
-
-(define (make-html-footer)
-  `(center
-    (p "Collected by " (a (@ (href ,%cadrobot)) "cadrobot")
-       ", converted to HTML using " (a (@ (href ,%tappet)) "tappet"))))
 
 (define (write-index! dirs port)
   "Write index file based on DIRS to the PORT"
