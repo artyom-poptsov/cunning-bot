@@ -17,9 +17,10 @@
 
 (define-module (cunning-bot log)
   #:use-module (ice-9 regex)
+  #:use-module (cunning-bot dsv)
   #:export (log-line))
 
-(define %log-file-format-version 1)
+(define %log-file-format-version 2)
 
 (define (make-log-file! file-name)
   (if (file-exists? file-name)
@@ -64,7 +65,9 @@ port."
                (channel (match:substring match 2))
                (message (match:substring match 3))
                (p       (make-log-port! log-dir ctime channel)))
-          (format p "~a:~a:PRIVMSG:~a~%" ctime sender message)
+          (display (list->dsv-string (list (number->string ctime)
+                                           sender "PRIVMSG" message)) p)
+          (newline p)
           (close p))))
 
      ((string-match "^:(.*)!.*@.* ([A-Z]*) ([^:]*)" line) =>
@@ -73,5 +76,7 @@ port."
                (command (match:substring match 2))
                (channel (match:substring match 3))
                (p       (make-log-port! log-dir ctime channel)))
-          (format p "~a:~a:~a~%" ctime sender command)
+          (display (list->dsv-string (list (number->string ctime)
+                                           sender command)) p)
+          (newline p)
           (close p)))))))
