@@ -38,6 +38,8 @@
 (define %cadrobot-url "https://github.com/artyom-poptsov/cunning-bot/tree/cadrobot")
 (define %tappet-url   "https://github.com/artyom-poptsov/cunning-bot/blob/cadrobot/tappet.in")
 
+(define %iso8601 "%Y-%m-%dT%H:%M:%S%z")
+
 (define *debug?* #t)
 
 (define (debug fmt . message)
@@ -80,7 +82,8 @@
   "Make a page footer."
   `(center
     (p "Collected by " (a (@ (href ,%cadrobot-url)) "cadrobot")
-       ", converted to HTML using " (a (@ (href ,%tappet-url)) "tappet"))))
+       ", converted to HTML using " (a (@ (href ,%tappet-url)) "tappet")
+       " at " ,(strftime %iso8601 (localtime (current-time))))))
 
 (define (write-html-page! title body port)
   "Write HTML page with the given TITLE and BODY to the PORT."
@@ -103,7 +106,6 @@ format `(link-name destination)' to the DIRECTORY."
 ;;; Exporters
 
 (define (timestamp->link timestamp)
-  (define %iso8601 "%Y-%m-%dT%H:%M:%S%z")
   (let ((hms (strftime "%T" (localtime timestamp))))
     `(a (@ (name  ,timestamp)
            (title ,(strftime %iso8601 (localtime timestamp)))
