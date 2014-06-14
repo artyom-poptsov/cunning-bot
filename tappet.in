@@ -33,6 +33,7 @@
              (ice-9 regex)
              (web   uri)
              (sxml  simple)
+             (rnrs  sorting)
              (cunning-bot dsv))
 
 (define %cadrobot-url "https://github.com/artyom-poptsov/cunning-bot/tree/cadrobot")
@@ -146,7 +147,7 @@ format `(link-name destination)' to the DIRECTORY."
   (debug "      export-month!: destination:   ~a~%" destination)
   (mkdir/try destination)
   (map (lambda (f) (export-log! f source destination))
-       (cadr month-subtree)))
+       (list-sort (lambda (e1 e2) (string>? e1 e2)) (cadr month-subtree))))
 
 (define (export-year! year-subtree source destination)
   "Export YEAR-SUBTREE to DESTINATION directory."
