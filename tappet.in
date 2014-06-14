@@ -124,7 +124,13 @@ format `(link-name destination)' to the DIRECTORY."
                            (td ,(list-ref rec 1)) ;sender
                            (td ,(list-ref rec 2)) ;command
                            (td ,(string-join (cdddr rec) ":"))))) ;message
-           (log     `(table ,(map rec->tr log)))
+           (table-header `(tr (@ (style "background-color: lightgray"))
+                              (th "Timestamp")
+                              (th "Sender")
+                              (th "Type")
+                              (th "Message")))
+           (log     `(table (@ (cellpadding 2))
+                            ,table-header ,(map rec->tr log)))
            (html-file (string-append (car (string-split log-file #\.)) ".html"))
            (dest    (string-append destination "/" html-file))
            (out     (open-output-file dest)))
