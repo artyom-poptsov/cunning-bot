@@ -203,6 +203,14 @@ format `(link-name destination)' to the DIRECTORY."
 
 (define (print-help-and-exit)
   "Print the help message and exit."
+  (display "\
+Usage: tappet [options]
+
+Options:
+  --help, -h             Print this message and exit.
+  --root-directory, -r   Set path to the directory in which logs are stored.
+  --output-directory, -o Set path to the directory to store HTML files.
+")
   (exit 0))
 
 (define %option-spec
