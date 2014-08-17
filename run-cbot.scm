@@ -20,10 +20,16 @@
 (use-modules (cunning-bot bot)
              (system repl server)
              (cunning-bot plugins)
+             (cunning-bot plugins help)
+             (cunning-bot plugins admin)
              (cunning-bot commands))
 
 (define socket-file-name "cbot-repl-socket")
 (define bot (make-bot "cadrobot" "irc.freenode.net" 6667))
+
+(use-plugin! bot 'help)
+(use-plugin! bot 'admin)
+
 (for-each (lambda (command)
             (let ((name (car command))
                   (proc (cdr command)))
@@ -35,7 +41,6 @@
   (set-log-dir! bot log-dir)
   (format #t "IRC logs directory: ~a~%" log-dir))
 
-(use-plugin! bot 'shoot)
 (spawn-server (make-unix-domain-server-socket #:path socket-file-name))
 
 ;; Does not work because of bug#13018.  Fixed in trunk.  See
