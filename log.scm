@@ -17,7 +17,7 @@
 
 (define-module (cunning-bot log)
   #:use-module (ice-9 regex)
-  #:use-module (cunning-bot dsv)
+  #:use-module (dsv)
   #:export (log-line))
 
 (define %log-file-format-version 2)

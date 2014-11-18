@@ -26,8 +26,7 @@ SOURCES = \
 	commands.scm			\
 	plugins.scm			\
 	run-cbot.scm			\
-	log.scm				\
-	dsv.scm
+	log.scm
 
 # XXX: Ship part of spells collection of Scheme libraries to simplify
 # the installation.

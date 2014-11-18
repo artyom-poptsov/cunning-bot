@@ -22,6 +22,8 @@ AC_ARG_WITH([guilesitedir],
 GUILE_PROGS
 GUILE_SITE_DIR
 
+GUILE_MODULE_REQUIRED([dsv])
+
 pkgdatadir="$datadir/$PACKAGE"
 if test "x$guilesitedir" = "x"; then
    guilesitedir="$pkgdatadir"
