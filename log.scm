@@ -37,8 +37,8 @@ port."
 
   (define (mkdir-if-not-exist! dir)
     "Make directory only if it does not exist"
-    (and (not (file-exists? dir))
-         (mkdir dir)))
+    (or (file-exists? dir)
+        (mkdir dir)))
 
   (let* ((ltime       (localtime ctime))
          (year        (+ 1900 (tm:year ltime)))
