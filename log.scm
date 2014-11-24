@@ -17,6 +17,7 @@
 
 (define-module (cunning-bot log)
   #:use-module (ice-9 regex)
+  #:use-module (srfi  srfi-26)
   #:use-module (dsv)
   #:export (log-line))
 
@@ -47,7 +48,7 @@ port."
          (month-dir   (format #f "~a/~a" year-dir    month)))
 
     ;; Make the hierarchy of directories
-    (for-each (lambda (dir) (mkdir-if-not-exist! dir))
+    (for-each (cut mkdir-if-not-exist! <>)
               (list channel-dir year-dir month-dir))
 
     (let ((ftime (strftime "%F" (localtime ctime))))
