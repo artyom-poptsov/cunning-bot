@@ -34,7 +34,7 @@
              (web   uri)
              (sxml  simple)
              (rnrs  sorting)
-             (cunning-bot dsv))
+             (dsv))
 
 (define %cadrobot-url "https://github.com/artyom-poptsov/cunning-bot/tree/cadrobot")
 (define %tappet-url   "https://github.com/artyom-poptsov/cunning-bot/blob/cadrobot/tappet.in")
