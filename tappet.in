@@ -36,8 +36,8 @@
              (rnrs  sorting)
              (dsv))
 
-(define %cadrobot-url "https://github.com/artyom-poptsov/cunning-bot/tree/cadrobot")
-(define %tappet-url   "https://github.com/artyom-poptsov/cunning-bot/blob/cadrobot/tappet.in")
+(define %cadrobot-url "https://github.com/cadrspace/cunning-bot/tree/cadrobot")
+(define %tappet-url   "https://github.com/cadrspace/cunning-bot/blob/cadrobot/tappet.in")
 
 (define %iso8601 "%Y-%m-%dT%H:%M:%S%z")
 
