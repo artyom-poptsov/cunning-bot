@@ -41,7 +41,7 @@
 
 (define %iso8601 "%Y-%m-%dT%H:%M:%S%z")
 
-(define *debug?* #t)
+(define *debug?* #f)
 
 (define (debug fmt . message)
   (and *debug?*
@@ -211,13 +211,15 @@ Options:
   --help, -h             Print this message and exit.
   --root-directory, -r   Set path to the directory in which logs are stored.
   --output-directory, -o Set path to the directory to store HTML files.
+  --debug                Enable debug mode.
 ")
   (exit 0))
 
 (define %option-spec
   '((help             (single-char #\h) (value #f))
     (root-directory   (single-char #\r) (value #t))
-    (output-directory (single-char #\o) (value #t))))
+    (output-directory (single-char #\o) (value #t))
+    (debug                              (value #f))))
 
 (define (main args)
   "Entry point of the program."
@@ -225,10 +227,14 @@ Options:
   (let* ((options        (getopt-long args %option-spec))
          (help-wanted?     (option-ref options 'help  #f))
          (root-directory   (option-ref options 'root-directory #f))
-         (output-directory (option-ref options 'output-directory #f)))
+         (output-directory (option-ref options 'output-directory #f))
+         (debug-wanted?    (option-ref options 'debug #f)))
 
     (and help-wanted?
          (print-help-and-exit))
+
+    (and debug-wanted?
+         (set! *debug?* #t))
 
     (or root-directory
         (error "You need to specify the root directory"))
