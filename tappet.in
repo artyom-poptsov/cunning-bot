@@ -162,7 +162,8 @@ format `(link-name destination)' to the DIRECTORY."
                 (elem-list   (export-month! month source destination)))
            (write-index! elem-list destination)
            (list (name month) (name month))))
-       (cadr year-subtree)))
+       (list-sort (lambda (e1 e2) (string>? (car e1) (car e2)))
+                  (cadr year-subtree))))
 
 (define (export-channel! channel-subtree source destination)
   "Export CHANNEL-SUBTREE to DESTINATION directory."
