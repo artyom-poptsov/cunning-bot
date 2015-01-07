@@ -22,6 +22,8 @@
              (cunning-bot plugins)
              (cunning-bot plugins help)
              (cunning-bot plugins admin)
+             ((cunning-bot plugins seen)
+              #:renamer (symbol-prefix-proc 'seen:))
              (cunning-bot commands))
 
 (define socket-file-name "cbot-repl-socket")
@@ -35,10 +37,12 @@
                   (proc (cdr command)))
              (register-command! bot name proc)))
           `((flay . ,flay)
-            (say-hello . ,say-hello)))
+            (say-hello . ,say-hello)
+            (seen      . ,seen:seen)))
 
 (let ((log-dir (format #f "~a/.local/share/cadrobot/logs" (getenv "HOME"))))
   (set-log-dir! bot log-dir)
+  (seen:set-log-dir! log-dir)
   (format #t "IRC logs directory: ~a~%" log-dir))
 
 (spawn-server (make-unix-domain-server-socket #:path socket-file-name))
