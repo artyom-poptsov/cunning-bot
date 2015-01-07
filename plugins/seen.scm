@@ -48,10 +48,6 @@
   "Get channels from a LOG-DIR "
   (cadr (remove-stat (file-system-tree log-dir))))
 
-(define (remove-#s channel-name)
-  "Remove '#' symbols from a CHANNEL-NAME."
-  (regexp-substitute/global #f "#*" channel-name 'pre "" 'post))
-
 (define (grep-file nick log-file)
   "Grep a LOG-FILE for the last record related to a NICK."
   (let ((dsv (reverse (dsv-read (open-input-file log-file)))))
