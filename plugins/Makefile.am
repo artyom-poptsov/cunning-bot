@@ -27,7 +27,8 @@ SOURCES = \
 	lets.scm	\
 	misc.scm	\
 	shoot.scm	\
-	title.scm
+	title.scm	\
+	seen.scm
 
 pluginsdir = $(guilesitedir)/cunning-bot/plugins
 nobase_dist_plugins_DATA = $(SOURCES)
