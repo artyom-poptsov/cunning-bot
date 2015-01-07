@@ -46,7 +46,10 @@
 
 (define (get-channels log-dir)
   "Get channels from a LOG-DIR "
-  (cadr (remove-stat (file-system-tree log-dir))))
+  ;; FIXME: The procedure should return all the channels, not only
+  ;; "##cadr".
+  (list (find (lambda (channel) (string=? (car channel)  "##cadr"))
+              (cadr (remove-stat (file-system-tree log-dir))))))
 
 (define (grep-file nick log-file)
   "Grep a LOG-FILE for the last record related to a NICK."
