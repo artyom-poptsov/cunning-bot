@@ -97,6 +97,16 @@ non-#f value, and return that value."
       (sort-dirs (cadr channel-dir))))
    (get-channels log-dir)))
 
+(define-syntax case-pred
+  (syntax-rules (else)
+    ((_ pred key ((datum ...) exp) ...)
+     (cond
+      ((or (pred key datum) ...) exp) ...))
+    ((_ pred key ((datum ...) exp) ... (else else-exp))
+     (cond
+      ((or (pred key datum) ...) exp) ...
+      (else else-exp)))))
+
 (define (log-record->event record)
   "Convert a log RECORD to an event string."
   (let ((nick      (cadr record))
@@ -106,13 +116,13 @@ non-#f value, and return that value."
           nick
           (date->string (time-utc->date (make-time 'time-utc 0 timestamp))
                         "~4")
-          (cond
-           ((string=? action "PRIVMSG")
+          (case-pred string=? action
+           (("PRIVMSG")
             (let ((message (cadddr record)))
               (format #f ", saying \"~a\"" message)))
-           ((string=? action "JOIN")
+           (("JOIN")
             (format #f ", joining the channel"))
-           ((string=? action "PART")
+           (("PART")
             (format #f ", leaving the channel"))
            (else "")))))
 
