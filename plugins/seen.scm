@@ -127,6 +127,8 @@ non-#f value, and return that value."
            (else "")))))
 
 (define (seen bot sender args)
+  "seen NICKNAME : digs information on when NICKNAME was seen last \
+time and what NICKNAME was doing then."
   (let ((nicknames (string-split args #\space)))
     (cond
      ((and (= (length nicknames) 1)
