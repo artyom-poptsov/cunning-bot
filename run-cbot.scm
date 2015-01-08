@@ -37,6 +37,7 @@
                   (proc (cdr command)))
              (register-command! bot name proc)))
           `((flay . ,flay)
+            (help      . ,help)
             (say-hello . ,say-hello)
             (seen      . ,seen:seen)))
 
