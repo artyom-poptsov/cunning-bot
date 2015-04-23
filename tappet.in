@@ -117,7 +117,7 @@ format `(link-name destination)' to the DIRECTORY."
 (define (export-log! log-file source destination)
   (debug "        export-log!: log-file: ~a~%" log-file)
   (let* ((p   (open-input-file (string-append source "/" log-file)))
-         (log (dsv-read p)))
+         (log (dsv->scm p)))
 
     ;; XXX
     (let* ((rec->tr (lambda (rec)

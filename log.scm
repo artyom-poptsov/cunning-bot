@@ -66,9 +66,8 @@ port."
                (channel (match:substring match 2))
                (message (match:substring match 3))
                (p       (make-log-port! log-dir ctime channel)))
-          (display (list->dsv-string (list (number->string ctime)
-                                           sender "PRIVMSG" message)) p)
-          (newline p)
+          (scm->dsv (list (number->string ctime) sender "PRIVMSG" message)
+                    p)
           (close p))))
 
      ((string-match "^:(.*)!.*@.* ([A-Z]*) ([^:]*)" line) =>
@@ -77,7 +76,5 @@ port."
                (command (match:substring match 2))
                (channel (match:substring match 3))
                (p       (make-log-port! log-dir ctime channel)))
-          (display (list->dsv-string (list (number->string ctime)
-                                           sender command)) p)
-          (newline p)
+          (scm->dsv (list (number->string ctime) sender command) p)
           (close p)))))))

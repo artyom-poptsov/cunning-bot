@@ -53,7 +53,7 @@
 
 (define (grep-file nick log-file)
   "Grep a LOG-FILE for the last record related to a NICK."
-  (let ((dsv (reverse (dsv-read (open-input-file log-file)))))
+  (let ((dsv (reverse (dsv->scm (open-input-file log-file)))))
     (find (lambda (record)
             (string=? (cadr record) nick))
           dsv)))
