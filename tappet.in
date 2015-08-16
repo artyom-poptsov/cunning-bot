@@ -98,9 +98,13 @@
 (define (write-index! elem-list directory)
   "Write index file based on ELEM-LIST which is a list of pairs in the
 format `(link-name destination)' to the DIRECTORY."
+  (define (elem->li e)
+    (if (= (length e) 2)
+        `(li (a (@ (href ,(cadr e))) ,(car e)))
+        `(li (a (@ (href ,(cadr e))) ,(car e))
+             ,(format #f " -- ~a record(s)" (caddr e)))))
   (debug "        write-index!: elem-list: ~a~%" elem-list)
-  (let* ((links (map (lambda (e) `(li (a (@ (href ,(cadr e))) ,(car e))))
-                     elem-list))
+  (let* ((links (map elem->li elem-list))
          (p     (open-output-file (string-append directory "/index.html"))))
     (write-html-page! "index" `((ul ,links)) p)))
 
@@ -117,7 +121,8 @@ format `(link-name destination)' to the DIRECTORY."
 (define (export-log! log-file source destination)
   (debug "        export-log!: log-file: ~a~%" log-file)
   (let* ((p   (open-input-file (string-append source "/" log-file)))
-         (log (dsv->scm p)))
+         (log (dsv->scm p))
+         (rec-count (length log)))
 
     ;; XXX
     (let* ((rec->tr (lambda (rec)
@@ -139,7 +144,7 @@ format `(link-name destination)' to the DIRECTORY."
            (out     (open-output-file dest)))
 
       (write-html-page! log-file (list log) out)
-      (list log-file html-file))))
+      (list log-file html-file rec-count))))
 
 (define (export-month! month-subtree source destination)
   "Export MONTH-SUBTREE to MONTH-DIR."
