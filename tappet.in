@@ -31,6 +31,7 @@
              (ice-9 ftw)
              (ice-9 match)
              (ice-9 regex)
+             (srfi  srfi-1)
              (web   uri)
              (sxml  simple)
              (rnrs  sorting)
@@ -106,7 +107,17 @@ format `(link-name destination)' to the DIRECTORY."
   (debug "        write-index!: elem-list: ~a~%" elem-list)
   (let* ((links (map elem->li elem-list))
          (p     (open-output-file (string-append directory "/index.html"))))
-    (write-html-page! "index" `((ul ,links)) p)))
+    (if (= (length (car elem-list)) 4)
+        (let ((tables (fold (lambda (elt prev)
+                              (if (>= (length elt) 4)
+                                  (cons (cddr (list-ref elt 3)) prev)
+                                  prev))
+                            '()
+                            elem-list))
+              (table-header (cadr (list-ref (car elem-list) 3))))
+          (write-html-page! "index" `((ul ,links)
+                                      (table ,table-header ,@tables)) p))
+        (write-html-page! "index" `((ul ,links)) p))))
 
 
 ;;; Exporters
@@ -144,7 +155,7 @@ format `(link-name destination)' to the DIRECTORY."
            (out     (open-output-file dest)))
 
       (write-html-page! log-file (list log) out)
-      (list log-file html-file rec-count))))
+      (list log-file html-file rec-count log))))
 
 (define (export-month! month-subtree source destination)
   "Export MONTH-SUBTREE to MONTH-DIR."
