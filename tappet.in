@@ -107,16 +107,33 @@ format `(link-name destination)' to the DIRECTORY."
   (debug "        write-index!: elem-list: ~a~%" elem-list)
   (let* ((links (map elem->li elem-list))
          (p     (open-output-file (string-append directory "/index.html"))))
+    ;; XXX: It works, but the code looks ugly.
     (if (= (length (car elem-list)) 4)
         (let ((tables (fold (lambda (elt prev)
                               (if (>= (length elt) 4)
-                                  (cons (cddr (list-ref elt 3)) prev)
+                                  (let* ((date (car (string-split (car elt)
+                                                                  #\.)))
+                                         (ancor `(a (@ (name ,date)
+                                                       (href ,(string-append
+                                                               "#" date)))
+                                                    ,date))
+                                         (header `(tr
+                                                  (td (@ (colspan 4)
+                                                         (style "background-color: lightgray"))
+                                                      ,ancor))))
+                                    (cons (cons header
+                                                (car (cdddr (list-ref elt 3))))
+                                          prev))
                                   prev))
                             '()
                             elem-list))
-              (table-header (cadr (list-ref (car elem-list) 3))))
+              (table-style  '(@ (cellpadding 2) (width "100%")))
+              (table-header '(tr (@ (style "background-color: lightgray"))
+                                 (th Timestamp) (th Sender) (th Type) (th Message))))
           (write-html-page! "index" `((ul ,links)
-                                      (table ,table-header ,@tables)) p))
+                                      (table ,table-style ,table-header
+                                             ,@tables))
+                            p))
         (write-html-page! "index" `((ul ,links)) p))))
 
 
