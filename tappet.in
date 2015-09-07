@@ -169,7 +169,7 @@ format `(link-name destination)' to the DIRECTORY."
                          `(tr (td ,(timestamp->link
                                     (string->number (list-ref rec 0))))
                               (td (@ (colspan 3))
-                                  ,(format #f "* ~a joined the channel"
+                                  ,(format #f "* ~a has joined the channel"
                                            (list-ref rec 1)))))
                         (("PART")
                          `(tr (td ,(timestamp->link
