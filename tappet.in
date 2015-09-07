@@ -139,7 +139,9 @@ format `(link-name destination)' to the DIRECTORY."
                             elem-list))
               (table-style  '(@ (cellpadding 2) (width "100%")))
               (table-header '(tr (@ (style "background-color: lightgray"))
-                                 (th "Timestamp") (th "Nick") (th "Message"))))
+                                 (th "Timestamp") (th (@ (style "min-width: 150px"))
+                                                      "Nick")
+                                 (th "Message"))))
           (write-html-page! "index" `((ul ,links)
                                       (table ,table-style ,table-header
                                              ,@tables))
