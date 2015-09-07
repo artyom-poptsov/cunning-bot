@@ -69,6 +69,16 @@
 (define (name n)
   (if (pair? n) (car n) n))
 
+(define-syntax case-pred
+  (syntax-rules (else)
+    ((_ pred key ((datum ...) exp) ...)
+     (cond
+      ((or (pred key datum) ...) exp) ...))
+    ((_ pred key ((datum ...) exp) ... (else else-exp))
+     (cond
+      ((or (pred key datum) ...) exp) ...
+      (else else-exp)))))
+
 
 ;;; HTML helpers
 
@@ -154,11 +164,25 @@ format `(link-name destination)' to the DIRECTORY."
 
     ;; XXX
     (let* ((rec->tr (lambda (rec)
-                      `(tr (td ,(timestamp->link
-                                 (string->number (list-ref rec 0)))) ;timestamp
-                           (td ,(list-ref rec 1)) ;sender
-                           (td ,(list-ref rec 2)) ;command
-                           (td ,(string-join (cdddr rec) ":"))))) ;message
+                      (case-pred string=? (list-ref rec 2)
+                        (("JOIN")
+                         `(tr (td ,(timestamp->link
+                                    (string->number (list-ref rec 0))))
+                              (td (@ (colspan 3))
+                                  ,(format #f "* ~a joined the channel"
+                                           (list-ref rec 1)))))
+                        (("PRIVMSG")
+                         `(tr (td ,(timestamp->link
+                                    (string->number (list-ref rec 0))))
+                              (td ,(format #f "<~a>" (list-ref rec 1)))
+                              (td (@ (colspan 2))
+                                  ,(string-join (cdddr rec) ":"))))
+                        (else
+                         `(tr (td ,(timestamp->link
+                                    (string->number (list-ref rec 0)))) ;timestamp
+                              (td ,(list-ref rec 1)) ;sender
+                              (td ,(list-ref rec 2)) ;command
+                              (td ,(string-join (cdddr rec) ":"))))))) ;message
            (table-header `(tr (@ (style "background-color: lightgray"))
                               (th "Timestamp")
                               (th "Sender")
